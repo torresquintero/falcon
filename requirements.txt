@@ -1,0 +1,6 @@
+transformers
+trl
+git+https://github.com/huggingface/peft.git
+datasets
+bitsandbytes
+scipy
