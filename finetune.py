@@ -22,7 +22,7 @@ from trl import (
     DataCollatorForCompletionOnlyLM,
 )
 
-from prompt import make_prompt
+from prompt import make_training_prompt
 
 
 def load_data(datapath: Path) -> Dataset:
@@ -31,7 +31,7 @@ def load_data(datapath: Path) -> Dataset:
     return dataset
 
 
-def load_pretrained_model():
+def load_pretrained_model(padding_side='right'):
     logging.info('Loading the pretrained model')
     model_name = 'tiiuae/falcon-7b'
 
@@ -55,6 +55,7 @@ def load_pretrained_model():
     tokeniser = AutoTokenizer.from_pretrained(
         model_name,
         trust_remote_code=True,
+        padding_side=padding_side,
     )
 
     tokeniser.pad_token = tokeniser.eos_token
@@ -149,7 +150,7 @@ def finetune(data: Dataset, model: AutoModelForCausalLM, tokeniser: AutoTokenize
         max_seq_length=max_seq_length,
         tokenizer=tokeniser,
         args=training_arguments,
-        formatting_func=make_prompt,
+        formatting_func=make_training_prompt,
         data_collator=collator,
     )
 
