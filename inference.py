@@ -60,13 +60,15 @@ if __name__ == "__main__":
     logging.basicConfig(level=logging.INFO)
     parser = argparse.ArgumentParser()
     parser.add_argument('--data', type=Path, required=True, help='Path to data to finetune from')
+    parser.add_argument('--checkpoint-path', type=Path, required=True,
+                        help='Path to checkpoint to use for inference')
     parser.add_argument('--batch-size', type=int, default=10,
                         help='How many sentences to generate prompts for at once')
     args = parser.parse_args()
 
     data = load_data(args.data)
     batches = separate_into_batches(data, args.batch_size)
-    model, tokeniser = load_pretrained_model(padding_side='left')
+    model, tokeniser = load_pretrained_model(padding_side='left', model_name=args.checkpoint_path)
     outputs = inference(batches, model, tokeniser)
 
     print(outputs[0])

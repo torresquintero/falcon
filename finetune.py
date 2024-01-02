@@ -31,9 +31,8 @@ def load_data(datapath: Path) -> Dataset:
     return dataset
 
 
-def load_pretrained_model(padding_side='right'):
+def load_pretrained_model(padding_side='right', model_name = 'tiiuae/falcon-7b'):
     logging.info('Loading the pretrained model')
-    model_name = 'tiiuae/falcon-7b'
 
     # Configuring the BitsAndBytes quantization
     bnb_config = BitsAndBytesConfig(
