@@ -107,7 +107,7 @@ def finetune(data: Dataset, model: AutoModelForCausalLM, tokeniser: AutoTokenize
     max_grad_norm = 0.3
 
     # Maximum number of training steps
-    max_steps = 50
+    max_steps = 10000
 
     # Warmup ratio for learning rate scheduling
     warmup_ratio = 0.03
