@@ -43,7 +43,7 @@ def inference(batches: list, model: AutoModelForCausalLM, tokeniser: AutoTokeniz
 
         output = model.generate(input_ids.input_ids.to('cuda'),
             attention_mask=attention_mask,
-            max_length=200,
+            max_length=1000,
             do_sample=True,
             top_k=10,
             num_return_sequences=1,
