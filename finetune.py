@@ -95,7 +95,7 @@ def finetune(data: Dataset, model: AutoModelForCausalLM, tokeniser: AutoTokenize
     optim = "paged_adamw_32bit"
 
     # Interval to save model checkpoints (every 10 steps)
-    save_steps = 100
+    save_steps = 1000
 
     # Interval to log training metrics (every 10 steps)
     logging_steps = 10
