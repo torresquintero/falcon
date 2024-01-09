@@ -52,7 +52,7 @@ def make_training_prompt(data: Dataset) -> str:
     return output_texts
 
 
-def make_inference_prompt(data: Dataset) -> str:
+def make_inference_prompt(data: Dataset) -> list:
     output_texts = []
     for i in range(len(data['original'])):
         original = data['original'][i]
@@ -62,6 +62,8 @@ I want you to generate the phonemised version of the sentence, {phonemised_defin
 Note that <sil> corresponds to silences or pauses in speech if the sentence is spoken aloud.
 When you are done generating, conclude with @@@@@
 ###OUTPUT:""".strip()
-        output_texts.append(prompt)
+        output_texts.append(
+            {'utt_id': data['utt_id'][i],
+             'prompt': prompt})
 
     return output_texts

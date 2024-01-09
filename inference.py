@@ -20,15 +20,19 @@ from finetune import (
 from prompt import make_inference_prompt
 
 
-def separate_into_batches(data: Dataset, batch_size: int) -> list:
+def separate_into_batches(data: Dataset, batch_size: int) -> tuple[list, list]:
     logging.info('Separating into batches')
+    all_utt_ids = []
     all_inputs = []
     for i in tqdm(range(int(data.num_rows/batch_size))):
         subset = data.select(range(i*batch_size, (i+1)*batch_size -  1))
-        input_prompts = make_inference_prompt(subset)
+        inputs = make_inference_prompt(subset)
+        utt_ids = [entry['utt_id'] for entry in inputs]
+        all_utt_ids += utt_ids
+        input_prompts = [entry['prompt'] for entry in inputs]
         all_inputs.append(input_prompts)
 
-    return all_inputs
+    return all_utt_ids, all_inputs
 
 
 def inference(batches: list, model: AutoModelForCausalLM, tokeniser: AutoTokenizer):
@@ -55,6 +59,15 @@ def inference(batches: list, model: AutoModelForCausalLM, tokeniser: AutoTokeniz
     return outputs
 
 
+def save_outputs_to_files(utt_ids: list, outputs: list, destination: Path) -> None:
+    if len(utt_ids) != len(outputs):
+        raise ValueError('The uttids and outputs do not match!')
+
+    for i, output in enumerate(outputs):
+        filename = destination / f'{utt_ids[i]}.txt'
+        with open(filename) as openfile:
+            openfile.write(output)
+
 
 if __name__ == "__main__":
     logging.basicConfig(level=logging.INFO)
@@ -62,13 +75,14 @@ if __name__ == "__main__":
     parser.add_argument('--data', type=Path, required=True, help='Path to data to finetune from')
     parser.add_argument('--checkpoint-path', type=Path, required=True,
                         help='Path to checkpoint to use for inference')
+    parser.add_argument('--destination', type=Path, default='output',
+                        help='Directory to store the output files')
     parser.add_argument('--batch-size', type=int, default=10,
                         help='How many sentences to generate prompts for at once')
     args = parser.parse_args()
 
     data = load_data(args.data)
-    batches = separate_into_batches(data, args.batch_size)
+    utt_ids, batches = separate_into_batches(data, args.batch_size)
     model, tokeniser = load_pretrained_model(padding_side='left', model_name=args.checkpoint_path)
     outputs = inference(batches, model, tokeniser)
-
-    print(outputs[0])
+    save_outputs_to_files(utt_ids, outputs, args.destination)
